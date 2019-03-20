@@ -44,7 +44,8 @@ Usage() {
 dir_filename=${1}; topupflag=${2}; echo_spacing=${3}; epi_factor=${4}
 
 # Directory with matlab scripts
-matlab_bin=/Users/estrawderman/Desktop/DP_preproc/matbin
+#old: matlab_bin=/Users/estrawderman/Desktop/DP_preproc/matbin
+matlab_bin=/scratch/dmi/dpaul2_lab/estrawde/preproc-master/matbin
 
 
 # ***** Set up basic variables *****
@@ -103,7 +104,8 @@ done
 if [ $topupflag -eq "1" ]; then
   i=1;
   while [ "$i" -le "$subNum" ]; do
-  /Users/estrawderman/Desktop/DP_preproc/topup_batch.sh $i $dir_filename $echo_spacing $epi_factor $LF 
+  #/Users/estrawderman/Desktop/DP_preproc/topup_batch.sh $i $dir_filename $echo_spacing $epi_factor $LF 
+  /scratch/dmi/dpaul2_lab/estrawde/preproc-master/topup_batch.sh $i $dir_filename $echo_spacing $epi_factor $LF
   ((i++))
   done
   wait  # wait for all topup instances to finish
@@ -113,7 +115,8 @@ fi
 # Run eddy_cuda, this parallised across available GPU's
 i=1;
 while [ "$i" -le "$subNum" ]; do
-/Users/estrawderman/Desktop/DP_preproc/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
+#/Users/estrawderman/Desktop/DP_preproc/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
+/scratch/dmi/dpaul2_lab/estrawde/preproc-master/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
 ((i++))
 done
 
