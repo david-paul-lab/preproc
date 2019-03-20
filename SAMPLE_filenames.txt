@@ -1,2 +1,4 @@
-/Users/dpaul/Documents/Research/DTI_Course_Ben/2018_Test_Data/practice_data_batch/4.p2_s3_dti_1.5mmiso_AP_3_b_values-2_averages
-/Users/dpaul/Documents/Research/DTI_Course_Ben/2018_Test_Data/practice_data_batch/3.p2_s3_dti_1.5mmiso_PA
+/scratch/dmi/dpaul2_lab/pitu2/dbdf/rawdata/4.p2_s3_dti_1.5mmiso_AP_3_b_values-2_averages
+/scratch/dmi/dpaul2_lab/pitu2/dbdf/rawdata/3.p2_s3_dti_1.5mmiso_PA
+
+#NOTE: there will be more file structure between raw data and actual data files, they just aren't uploaded yet.
