@@ -1,4 +1,7 @@
-/scratch/dmi/dpaul2_lab/pitu2/dbdf/rawdata/4.p2_s3_dti_1.5mmiso_AP_3_b_values-2_averages
-/scratch/dmi/dpaul2_lab/pitu2/dbdf/rawdata/3.p2_s3_dti_1.5mmiso_PA
-
-#NOTE: there will be more file structure between raw data and actual data files, they just aren't uploaded yet.
+#Updated location as of 4/2/19
+# ...Sub1/Series1/DTI directory: DTI images of the scan, A>>P phase encoding
+# ...Sub1/Series2/PA_B0 directory: Folder P>>A phase encoded acquisition
+# ...Sub1/Series2/MPRAGE: T1 Structural image
+/scratch/dmi/dpaul2_lab/pitu2/dbdf/evaldata/PITU2_13004/20190115/4.p2_s3_dti_1.5mmiso_AP_3_b_values-2_averages
+/scratch/dmi/dpaul2_lab/pitu2/dbdf/evaldata/PITU2_13004/20190115/3.p2_s3_dti_1.5mmiso_PA
+/scratch/dmi/dpaul2_lab/pitu2/dbdf/evaldata/PITU2_13004/20190115/2.T1_MPRAGE_FS_sag_iso

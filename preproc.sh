@@ -43,15 +43,17 @@ Usage() {
 
 dir_filename=${1}; topupflag=${2}; echo_spacing=${3}; epi_factor=${4}
 
-# Directory with matlab scripts
-#old: matlab_bin=/Users/estrawderman/Desktop/DP_preproc/matbin
-matlab_bin=/scratch/dmi/dpaul2_lab/estrawde/preproc-master/matbin
+# Directory with all of the pre-processing steps (BHWARD)
+scripts=/scratch/dmi/dpaul2_lab/pitu2/dbdf/scripts/preproc
+
+# Directory with matlab scripts (BHWARD)
+matlab_bin=/scratch/dmi/dpaul2_lab/pitu2/dbdf/scripts/preproc/matlab_bin
 
 
 # ***** Set up basic variables *****
 LF=$dir_filename".log" # setup the log file
 if [ -e $LF ]; then
- mv $LF $LF".bak"
+  mv $LF $LF".bak"
 fi
 echo Logfile is $LF
 date >> $LF
@@ -60,7 +62,7 @@ echo $start_time >> $LF
 
 # Determine the number of subjects to process
 subNum=$(cat $dir_filename | wc -w)
-  subNum=$(expr $subNum / 2)
+subNum=$(expr $subNum / 2)
 echo The total number of subjects is $subNum | tee -a $LF
 
 
@@ -71,12 +73,12 @@ while [ "$i" -le "$subNum" ]; do
   indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
   ((indx++))
   tmp=$(cat $dir_filename | head -n $indx | tail -1)
-  basedir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print "/"names[2]"/"names[3]"/"names[4]"/"names[5]"/"names[6]"/"names[7]"/"names[8]}')
-  dti_avg=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print names[9]}')
+  basedir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print "/"names[2]"/"names[3]"/"names[4]"/"names[5]"/"names[6]"/"names[7]"/"names[8]"/"names[9]}')
+  dti_avg=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print names[10]}')
   echo $dti_avg
   ((indx++))
   tmp=$(cat $dir_filename | head -n $indx | tail -1)
-  pa_b0_dir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print names[9]}')
+  pa_b0_dir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print names[10]}')
   echo $pa_b0_dir
 
   data_analysis_folder=${basedir}"/data"   # create data analysis folder
@@ -86,15 +88,15 @@ while [ "$i" -le "$subNum" ]; do
   # Run dcm2niix on the subject, saves to data_analysis folder
 
   if [ ! -e *.bvec ]; then
-  dcm2niix -b y -ba y -o $data_analysis_folder ${basedir}"/"${dti_avg}
-  cd $data_analysis_folder
-  mv *.nii data.nii; mv *.bvec data.bvec; mv *.bval data.bval
-  mv *.json image_header.json
+    dcm2niix -b y -ba y -o $data_analysis_folder ${basedir}"/"${dti_avg}
+    cd $data_analysis_folder
+    mv *.nii data.nii; mv *.bvec data.bvec; mv *.bval data.bval
+    mv *.json image_header.json
   fi
 
   if [ ! -e *PA*.nii ]; then
-  dcm2niix -o $data_analysis_folder ${basedir}"/"${pa_b0_dir}
-  mv *PA*.nii pa_b0.nii; rm *PA*.json
+    dcm2niix -o $data_analysis_folder ${basedir}"/"${pa_b0_dir}
+    mv *PA*.nii pa_b0.nii; rm *PA*.json
   fi
 
   ((i++))
@@ -104,9 +106,9 @@ done
 if [ $topupflag -eq "1" ]; then
   i=1;
   while [ "$i" -le "$subNum" ]; do
-  #/Users/estrawderman/Desktop/DP_preproc/topup_batch.sh $i $dir_filename $echo_spacing $epi_factor $LF 
-  /scratch/dmi/dpaul2_lab/estrawde/preproc-master/topup_batch.sh $i $dir_filename $echo_spacing $epi_factor $LF
-  ((i++))
+    #/Users/estrawderman/Desktop/DP_preproc/topup_batch.sh $i $dir_filename $echo_spacing $epi_factor $LF
+    ${scripts}"/topup_batch.sh" $i $dir_filename $echo_spacing $epi_factor $LF
+    ((i++))
   done
   wait  # wait for all topup instances to finish
 fi
@@ -115,9 +117,9 @@ fi
 # Run eddy_cuda, this parallised across available GPU's
 i=1;
 while [ "$i" -le "$subNum" ]; do
-#/Users/estrawderman/Desktop/DP_preproc/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
-/scratch/dmi/dpaul2_lab/estrawde/preproc-master/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
-((i++))
+  #/Users/estrawderman/Desktop/DP_preproc/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
+  ${scripts}"/eddy_batch.sh" $i $dir_filename $matlab_bin $echo_spacing $epi_factor
+  ((i++))
 done
 
 end_time=`date +%s`

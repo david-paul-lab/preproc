@@ -21,7 +21,7 @@ indx=$(($i - 1))
 indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
 ((indx++))
 tmp=$(cat $dir_filename | head -n $indx | tail -1)
-basedir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print "/"names[2]"/"names[3]"/"names[4]"/"names[5]"/"names[6]"/"names[7]"/"names[8]}')
+basedir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print "/"names[2]"/"names[3]"/"names[4]"/"names[5]"/"names[6]"/"names[7]"/"names[8]"/"names[9]}')
 data_analysis_folder=${basedir}"/data"
 
 # Define paramters for acqparams file
@@ -41,41 +41,41 @@ mkdir ${data_analysis_folder}"/pa_b0_split"
 cd ${data_analysis_folder}"/pa_b0_split"
 pa_b0_volume=${data_analysis_folder}"/pa_b0.nii"
 if [ ! -e vol0000.nii.gz ]; then
-echo "Running fslsplit on P>>A acquisition..."
-fslsplit $pa_b0_volume
+  echo "Running fslsplit on P>>A acquisition..."
+  fslsplit $pa_b0_volume
 fi
 num_pa_files=$(ls -l | wc -l)
 ((num_pa_files--))
-  echo The number of PA files is $num_pa_files
-    if [ $num_pa_files -gt 3 ]; then
-      echo "NOTE: There are too many PA volumes! We will truncate down to 3"
-        pa_vols=()
-        for ((volume = 1; volume <= 3; volume++));  do
-          pa_vols=(${pa_vols[@]} "$volume")
-        done
-      files="${palvols[*]}"
-      echo "Merging first 3 PA volumes..."
-      if [ ! -e ${data_analysis_folder}/pa_b0_truncated.nii.gz ]; then
-      fslmerge -t ${data_analysis_folder}"/pa_b0_truncated.nii.gz" $files
-      fi
-      pa_b0_volume=${data_analysis_folder}"/pa_b0_truncated.nii.gz"
-    fi
-  # write to acqparams file
-  acqparams=${topup_dir}"/acqparams.txt"
-  touch ${acqparams}
-  if [ -e $acqparams ]; then
-   mv $acqparams ${acqparams}".bak"
-  fi
-  for ((volume = 1; volume <= num_pa_files; volume++)); do
-    printf '%s\n' "$pa_params" >> $acqparams
+echo The number of PA files is $num_pa_files
+if [ $num_pa_files -gt 3 ]; then
+  echo "NOTE: There are too many PA volumes! We will truncate down to 3"
+  pa_vols=()
+  for ((volume = 1; volume <= 3; volume++));  do
+    pa_vols=(${pa_vols[@]} "$volume")
   done
+  files="${palvols[*]}"
+  echo "Merging first 3 PA volumes..."
+  if [ ! -e ${data_analysis_folder}/pa_b0_truncated.nii.gz ]; then
+    fslmerge -t ${data_analysis_folder}"/pa_b0_truncated.nii.gz" $files
+  fi
+  pa_b0_volume=${data_analysis_folder}"/pa_b0_truncated.nii.gz"
+fi
+# write to acqparams file
+acqparams=${topup_dir}"/acqparams.txt"
+touch ${acqparams}
+if [ -e $acqparams ]; then
+  mv $acqparams ${acqparams}".bak"
+fi
+for ((volume = 1; volume <= num_pa_files; volume++)); do
+  printf '%s\n' "$pa_params" >> $acqparams
+done
 
 # Process A>>P data (this assumes that this data is the DTI data)
 mkdir ${data_analysis_folder}"/ap_b0_split"
 cd ${data_analysis_folder}"/ap_b0_split"
 if [ ! -e vol0000.nii.gz ]; then
-echo "Running fslsplit on A>>P acquisition..."
-fslsplit ${data_analysis_folder}"/data.nii"
+  echo "Running fslsplit on A>>P acquisition..."
+  fslsplit ${data_analysis_folder}"/data.nii"
 fi
 # Index the B=0 volumes
 cd ${data_analysis_folder}
@@ -91,23 +91,23 @@ num_ap_files=$((num_pa_files + 2))
 ls >> ../all_volumes.txt
 vol=()
 for ((volume = 1; volume <= num_ap_files; volume++)); do
-bindex=$(sed -n "$volume p" ../b0_volumes_tmp.txt)
-vol[$volume]=$(sed -n "$bindex p" ../all_volumes.txt)
-#echo $ap_params >> $acqparams # write to acqparams file
-printf '%s\n' "$ap_params" >> $acqparams
+  bindex=$(sed -n "$volume p" ../b0_volumes_tmp.txt)
+  vol[$volume]=$(sed -n "$bindex p" ../all_volumes.txt)
+  #echo $ap_params >> $acqparams # write to acqparams file
+  printf '%s\n' "$ap_params" >> $acqparams
 done
 files="${vol[*]}"
 echo $files
 
 # Create B0_merge file
 if [ ! -e ${data_analysis_folder}/b0_merged.nii.gz ]; then
-echo "Creating merged B0 image for Topup..."
-fslmerge -t ${data_analysis_folder}/b0_merged.nii.gz $pa_b0_volume $files
+  echo "Creating merged B0 image for Topup..."
+  fslmerge -t ${data_analysis_folder}/b0_merged.nii.gz $pa_b0_volume $files
 fi
 # Run Topup!!
 cd $topup_dir
 if [ ! -e ${topup_dir}/hifib0.nii.gz ]; then
-echo "Running Topup..."
-topup --imain=${data_analysis_folder}/b0_merged.nii.gz --datain=$acqparams --iout=hifib0.nii.gz --config=b02b0.cnf --fout=topupfield --out=topupresults --verbose
+  echo "Running Topup..."
+  topup --imain=${data_analysis_folder}/b0_merged.nii.gz --datain=$acqparams --iout=hifib0.nii.gz --config=b02b0.cnf --fout=topupfield --out=topupresults --verbose
 fi
 echo "Top up complete!"
