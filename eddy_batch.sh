@@ -92,7 +92,7 @@ if [ ! -e ${eddy_folder}"hifib0_bet_mask.nii.gz" ]; then
 fi
 echo "BET is complete..."
 # Create fullmerged.nii file (Combined PA and AP volumes)
-if [ "$num_pa_files" -le 3 ] && [ ! -e ${eddy_folder}"/fullmerged.nii" ]; then
+if [ ! -e ${eddy_folder}"/fullmerged.nii" ]; then
   fslmerge -t ${eddy_folder}"/fullmerged.nii" ${data_analysis_folder}"/pa_b0.nii" ${data_analysis_folder}"/data.nii"
 fi
 
