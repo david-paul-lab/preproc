@@ -88,7 +88,7 @@ fi
 # Create mask using BET
 cd ${eddy_folder}
 if [ ! -e ${eddy_folder}"hifib0_bet_mask.nii.gz" ]; then
-  BET hifib0.nii.gz hifib0_bet.nii.gz -m -f .2
+  bet hifib0.nii.gz hifib0_bet.nii.gz -m -f .2
 fi
 echo "BET is complete..."
 # Create fullmerged.nii file (Combined PA and AP volumes)

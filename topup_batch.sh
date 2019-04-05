@@ -16,7 +16,6 @@ i=${1} # subject number
 dir_filename=${2} #list of subjects
 echo_spacing=${3}
 epi_factor=${4}
-LF=${5}
 indx=$(($i - 1))
 indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
 ((indx++))

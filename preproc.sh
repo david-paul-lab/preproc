@@ -49,21 +49,13 @@ scripts=/scratch/dmi/dpaul2_lab/pitu2/dbdf/scripts/preproc
 # Directory with matlab scripts (BHWARD)
 matlab_bin=/scratch/dmi/dpaul2_lab/pitu2/dbdf/scripts/preproc/matlab_bin
 
-
-# ***** Set up basic variables *****
-LF=$dir_filename".log" # setup the log file
-if [ -e $LF ]; then
-  mv $LF $LF".bak"
-fi
-echo Logfile is $LF
-date >> $LF
-start_time=`date +%s`
-echo $start_time >> $LF
+date #for record keeping purposes
+start_time=`date +%s` #track how long script runs
 
 # Determine the number of subjects to process
 subNum=$(cat $dir_filename | wc -w)
 subNum=$(expr $subNum / 2)
-echo The total number of subjects is $subNum | tee -a $LF
+echo The total number of subjects is $subNum
 
 
 i=1;
@@ -83,7 +75,6 @@ while [ "$i" -le "$subNum" ]; do
 
   data_analysis_folder=${basedir}"/data"   # create data analysis folder
   mkdir $data_analysis_folder; cd $data_analysis_folder
-  date >> $LF
 
   # Run dcm2niix on the subject, saves to data_analysis folder
 
@@ -106,8 +97,7 @@ done
 if [ $topupflag -eq "1" ]; then
   i=1;
   while [ "$i" -le "$subNum" ]; do
-    #/Users/estrawderman/Desktop/DP_preproc/topup_batch.sh $i $dir_filename $echo_spacing $epi_factor $LF
-    ${scripts}"/topup_batch.sh" $i $dir_filename $echo_spacing $epi_factor $LF
+    ${scripts}"/topup_batch.sh" $i $dir_filename $echo_spacing $epi_factor
     ((i++))
   done
   wait  # wait for all topup instances to finish
@@ -123,5 +113,19 @@ while [ "$i" -le "$subNum" ]; do
 done
 
 end_time=`date +%s`
-echo Execution time was `expr $end_time - $start_time` s. >> $LF
+echo Execution time was `expr $end_time - $start_time` s.
+
+# Move SLURM log file to data analysis folder
+function datevar()
+{
+  date +%d%m%Y
+}
+jobdate=$(datevar)
+if [! -e ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log" ]; then
+  mv *.out ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log"
+else
+  mv ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log" ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log.bak"
+  mv *.out ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log"
+fi
+
 echo "MISSION ACCOMPLISHED!"
