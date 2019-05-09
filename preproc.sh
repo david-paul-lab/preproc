@@ -1,47 +1,16 @@
 #!/bin/bash
-#
 # preproc.sh v1.0
-# This is a batch script for pre-processing DTI data
-# This script assumes that:
-# 1. Data are acquired using a Siemens scanner (RCBI Scanner)
-# 2. DTI data are acquired in the P>>A Phase encoding, future versions will
-#    include support for other directions
-# 3. You need to know the Echo Spacing and EPI Factor for your scans.
-#    Email Renee_Stowell@URMC.Rochester.edu if you need help with this
-# 4. For older data that are not acquired with reversed phase encoded images,
-#    "0" will need to be specified as the <topupflag>
-# 5. dcm2niix is installed on the local machine, instructions for downloading
-#    can be found at: https://github.com/rordenlab/dcm2niix. Note: This is
-#    a different program than "dcm2nii"
-# 6. Matlab is installed on the local machine. This is necessary for "slice to
-#    volume" correction algorithms incorporated in fsl
-# 7. Appropriate pathnames must be specified for fsl functions
-#    in the .bash_profile
-#
-# Files must in an appropriate file structure, and listed in a text file
-# <dir_fname>
-# ...Sub1/Series1/DTI directory: DTI images of the scan, A>>P phase encoding
-# ...Sub1/Series2/PA_B0 directory: Folder P>>A phase encoded acquisition
-# ...Sub1/Series2/MPRAGE: T1 Structural image
-# ...Sub2/Series1/DTI directory: ""
-# ...Sub2/Series2/PA_B0 directory: ""
-# ...Sub1/Series2/MPRAGE:""
-#
-# Author: David A. Paul, MD
-# Resident, Department of Neurosurgery,
-# University of Rochester Medical Center
-# Email david_paul@urmc.rochester.edu with questions
-#
-#CHANGES MADE FROM ORIGINAL: paths are all local to emmas computer. ampersand removed
+# Wrapper Batch script for pre-processing DTI data aquired at UR CABIN
 
 Usage() {
   echo ""
-  echo "Usage: preproc <dir_filename> <topupflag> <echospacing> <epifactor> "
+  echo "Usage: preproc <dir_filename> <topupflag> <eddyflag> <dtiflag> <bpxflag> <echospacing> <epifactor> "
   echo "
   exit"
 }
 
-dir_filename=${1}; topupflag=${2}; echo_spacing=${3}; epi_factor=${4}
+dir_filename=${1}; topupflag=${2}; eddyflag=${3}; dtiflag=${4}
+bpxflag=${5}; echo_spacing=${6}; epi_factor=${7}
 
 # Directory with all of the pre-processing steps (BHWARD)
 scripts=/scratch/dmi/dpaul2_lab/pitu2/dbdf/scripts/preproc
@@ -60,7 +29,6 @@ echo The total number of subjects is $subNum
 
 i=1;
 while [ "$i" -le "$subNum" ]; do
-
   indx=$(($i - 1))
   indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
   ((indx++))
@@ -77,7 +45,6 @@ while [ "$i" -le "$subNum" ]; do
   mkdir $data_analysis_folder; cd $data_analysis_folder
 
   # Run dcm2niix on the subject, saves to data_analysis folder
-
   if [ ! -e *.bvec ]; then
     dcm2niix -b y -ba y -o $data_analysis_folder ${basedir}"/"${dti_avg}
     cd $data_analysis_folder
@@ -89,7 +56,6 @@ while [ "$i" -le "$subNum" ]; do
     dcm2niix -o $data_analysis_folder ${basedir}"/"${pa_b0_dir}
     mv *PA*.nii pa_b0.nii; rm *PA*.json
   fi
-
   ((i++))
 done
 
@@ -97,20 +63,40 @@ done
 if [ $topupflag -eq "1" ]; then
   i=1;
   while [ "$i" -le "$subNum" ]; do
-    ${scripts}"/topup_batch.sh" $i $dir_filename $echo_spacing $epi_factor
+    ${scripts}"/topup_batch.sh" $i $dir_filename $echo_spacing $epi_factor &
     ((i++))
   done
-  wait  # wait for all topup instances to finish
+  wait
 fi
 
+# Run eddy_cuda, this parallelized across available GPU's
+if [ $eddyflag -eq "1" ]; then
+  i=1;
+  while [ "$i" -le "$subNum" ]; do
+    #/Users/estrawderman/Desktop/DP_preproc/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
+    ${scripts}"/eddy_batch.sh" $i $dir_filename $matlab_bin $echo_spacing $epi_factor
+    ((i++))
+  done
+fi
 
-# Run eddy_cuda, this parallised across available GPU's
-i=1;
-while [ "$i" -le "$subNum" ]; do
-  #/Users/estrawderman/Desktop/DP_preproc/eddy_batch.sh $i $dir_filename $matlab_bin $echo_spacing $epi_factor
-  ${scripts}"/eddy_batch.sh" $i $dir_filename $matlab_bin $echo_spacing $epi_factor
-  ((i++))
-done
+# Run dtifit
+if [ $dtiflag -eq "1" ]; then
+  i=1;
+  while [ "$i" -le "$subNum" ]; do
+    ${scripts}"/dtifit_batch.sh" $i $dir_filename $matlab_bin &
+    ((i++))
+  done
+  wait
+fi
+
+#Run bedpostx_gpu, parallelized across available GPU's
+if [ $bpxflag -eq "1" ]; then
+  i=1;
+  while [ "$i" -le "$subNum" ]; do
+    ${scripts}"/bedpostx_batch.sh" $i $dir_filename
+    ((i++))
+  done
+fi
 
 end_time=`date +%s`
 echo Execution time was `expr $end_time - $start_time` s.
@@ -121,7 +107,7 @@ function datevar()
   date +%d%m%Y
 }
 jobdate=$(datevar)
-if [! -e ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log" ]; then
+if [ ! -e ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log" ]; then
   mv *.out ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log"
 else
   mv ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log" ${data_analysis_folder}"/"${jobdate}"_slurmOutput.log.bak"

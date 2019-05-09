@@ -1,21 +1,8 @@
 #!/bin/bash
 # Script for running topup batch from fsl
-#
-#
-#
-# Author: David A. Paul, MD
-# Resident, Department of Neurosurgery,
-# University of Rochester Medical Center
-# Email david_paul@urmc.rochester.edu with questions
-#
-#CHANGES MADE: path to emmas computer, added the log file although dont think this works, and below #Run Topup was slightly tweaked.
-
 
 # Define filenames and folders
-i=${1} # subject number
-dir_filename=${2} #list of subjects
-echo_spacing=${3}
-epi_factor=${4}
+i=${1}; dir_filename=${2}; echo_spacing=${3}; epi_factor=${4}
 indx=$(($i - 1))
 indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
 ((indx++))

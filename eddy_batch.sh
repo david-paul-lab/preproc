@@ -1,20 +1,9 @@
 #!/bin/bash
 # This script is for batch proccessing of eddy_cuda as called by the
 # preproc.sh script
-#
-# Author: David A. Paul, MD
-# Resident, Department of Neurosurgery,
-# University of Rochester Medical Center
-# Email david_paul@urmc.rochester.edu with questions
-#
-#CHANGES MADE: path to emmas computer, moved items from topup to eddy folder, ran BET (key change!!!!), slightly tweaked eddy command (will need to change to cuda on bluehive)
 
 # Define filenames and folders
-i=${1}
-dir_filename=${2}
-matlab_bin=${3}
-echo_spacing=${4}
-epi_factor=${5}
+i=${1}; dir_filename=${2}; matlab_bin=${3}; echo_spacing=${4}; epi_factor=${5}
 
 indx=$(($i - 1))
 indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
