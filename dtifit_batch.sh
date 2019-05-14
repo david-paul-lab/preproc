@@ -2,7 +2,7 @@
 # This script is for running DTIFIT with the preproc.sh script
 i=${1}; dir_filename=${2}; matlab_bin=${3}
 indx=$(($i - 1))
-indx=$(($indx * 2)) # This number is based on number of folders per subject
+indx=$(($indx * 3)) # This number is based on number of folders per subject
 ((indx++))
 tmp=$(cat $dir_filename | head -n $indx | tail -1)
 basedir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print "/"names[2]"/"names[3]"/"names[4]"/"names[5]"/"names[6]"/"names[7]"/"names[8]"/"names[9]}')

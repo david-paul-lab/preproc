@@ -5,7 +5,7 @@
 # Define filenames and folders
 i=${1}; dir_filename=${2};
 indx=$(($i - 1))
-indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
+indx=$(($indx * 3)) # This number will need to change based on how many folders are inputted per subject
 ((indx++))
 tmp=$(cat $dir_filename | head -n $indx | tail -1)
 basedir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print "/"names[2]"/"names[3]"/"names[4]"/"names[5]"/"names[6]"/"names[7]"/"names[8]"/"names[9]}')

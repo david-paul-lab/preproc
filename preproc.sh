@@ -23,14 +23,14 @@ start_time=`date +%s` #track how long script runs
 
 # Determine the number of subjects to process
 subNum=$(cat $dir_filename | wc -w)
-subNum=$(expr $subNum / 2)
+subNum=$(expr $subNum / 3)
 echo The total number of subjects is $subNum
 
 
 i=1;
 while [ "$i" -le "$subNum" ]; do
   indx=$(($i - 1))
-  indx=$(($indx * 2)) # This number will need to change based on how many folders are inputted per subject
+  indx=$(($indx * 3)) # This number will need to change based on how many folders are inputted per subject
   ((indx++))
   tmp=$(cat $dir_filename | head -n $indx | tail -1)
   basedir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print "/"names[2]"/"names[3]"/"names[4]"/"names[5]"/"names[6]"/"names[7]"/"names[8]"/"names[9]}')
@@ -40,11 +40,14 @@ while [ "$i" -le "$subNum" ]; do
   tmp=$(cat $dir_filename | head -n $indx | tail -1)
   pa_b0_dir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print names[10]}')
   echo $pa_b0_dir
-
+  ((indx++))
+  tmp=$(cat $dir_filename | head -n $indx | tail -1)
+  mprage_dir=$(awk -v "X=$tmp" 'BEGIN { split(X, names, "/"); print names[10]}')
+  echo $mprage_dir
   data_analysis_folder=${basedir}"/data"   # create data analysis folder
   mkdir $data_analysis_folder; cd $data_analysis_folder
 
-  # Run dcm2niix on the subject, saves to data_analysis folder
+  # Run dcm2niix on each subject, saves to data_analysis folder
   if [ ! -e *.bvec ]; then
     dcm2niix -b y -ba y -o $data_analysis_folder ${basedir}"/"${dti_avg}
     cd $data_analysis_folder
@@ -55,6 +58,11 @@ while [ "$i" -le "$subNum" ]; do
   if [ ! -e *PA*.nii ]; then
     dcm2niix -o $data_analysis_folder ${basedir}"/"${pa_b0_dir}
     mv *PA*.nii pa_b0.nii; rm *PA*.json
+  fi
+
+  if [ ! -e *T1*.nii ]; then
+    dcm2niix -o $data_analysis_folder ${basedir}"/"${mprage_dir}
+    mv *T1*.nii T1.nii; rm *T1*.json
   fi
   ((i++))
 done
