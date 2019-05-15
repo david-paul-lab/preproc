@@ -91,5 +91,5 @@ fi
 # NOTE: If running locally without a gpu, you will not be able to run eddy_cuda
 # eddy_cuda8 \
 
-eddy_cuda --imain=fullmerged.nii.gz --mask=hifib0_bet_mask.nii.gz --index=eddy_index.txt --acqp=eddy_acqparams.txt --bvecs=fullmerged.bvec --bvals=fullmerged.bval --topup=topupresults --out=data_ec --verbose
+eddy_cuda8.0 --imain=fullmerged.nii.gz --mask=hifib0_bet_mask.nii.gz --index=eddy_index.txt --acqp=eddy_acqparams.txt --bvecs=fullmerged.bvec --bvals=fullmerged.bval --topup=topupresults --out=data_ec --verbose
 echo "Eddy done..."
