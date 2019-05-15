@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:2 -p gpu
 module load matlab fsl/6.0.1/b1 dcm2niix cuda
 
-# Usage: preproc <dir_filename> <topupflag> <eddyflag> <bpxflag> <dtiflag> <echospacing> <epifactor>
+# Usage: preproc <dir_filename> <topupflag> <eddyflag> <dtiflag> <bpxflag> <echospacing> <epifactor>
 
 # Run Topup, eddy, dtifit
 #./preproc.sh /scratch/dmi/dpaul2_lab/pitu2/dbdf/scripts/preproc/filenames.txt 1 1 1 0 .66 172
