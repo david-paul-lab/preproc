@@ -91,7 +91,7 @@ fi
 if [ $dtiflag -eq "1" ]; then
   i=1;
   while [ "$i" -le "$subNum" ]; do
-    ${scripts}"/dtifit_batch.sh" $i $dir_filename $matlab_bin &
+    ${scripts}"/dtifit_batch.sh" $i $dir_filename $matlab_bin 
     ((i++))
   done
   wait
