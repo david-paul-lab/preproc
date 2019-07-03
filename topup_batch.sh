@@ -39,7 +39,7 @@ if [ $num_pa_files -gt 3 ]; then
   for ((volume = 1; volume <= 3; volume++));  do
     pa_vols=(${pa_vols[@]} "$volume")
   done
-  files="${palvols[*]}"
+  files="${pa_vols[*]}"
   echo "Merging first 3 PA volumes..."
   if [ ! -e ${data_analysis_folder}/pa_b0_truncated.nii.gz ]; then
     fslmerge -t ${data_analysis_folder}"/pa_b0_truncated.nii.gz" $files
