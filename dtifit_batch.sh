@@ -21,7 +21,7 @@ fi
 ls >> ${eddy_folder}"/eddy_corrected_volumes.txt" #list of all total_volumes
 
 # Run Matlab script to create updated bvals and bvecs files, and text file with b=1000 volumes
-bvecfile=${eddy_folder}"/fullmerged.bvec"
+bvecfile=${eddy_folder}"/data_ec.eddy_rotated_bvecs"
 bvalfile=${eddy_folder}"/fullmerged.bval"
 ecovolumes=${eddy_folder}"/eddy_corrected_volumes.txt"
 #if [ ! -e $bvecfile ]; then
